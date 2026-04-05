@@ -5,12 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useContext } from "react";
-
-// 1. Import Context (Crucial for Role-Based Access)
-// If you haven't built AuthContext yet, you can temporarily comment out the ProtectedRoute logic
-// import { AuthContext } from "./context/AuthContext";
-
-// 2. Import Layout & Components
+import { useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout";
 import Navbar from "./components/Navbar";
 
@@ -20,8 +15,8 @@ import ReportForm from "./components/ReportForm";
 // Placeholder components for routes that aren't built yet
 import MapView from "./components/MapView";
 import IncidentDetail from "./pages/IncidentDetail";
-const Login = () => <div className="p-20 text-white">Login Page</div>;
-const Register = () => <div className="p-20 text-white">Register Page</div>;
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 const Dashboard = () => (
   <div className="p-20 text-white">Citizen Dashboard</div>
 );
@@ -32,10 +27,28 @@ const AdminPanel = () => <div className="p-20 text-white">Admin Analytics</div>;
  * Redirects to Login if no user is found.
  * Redirects to Home if the user doesn't have the required role.
  */
+// const ProtectedRoute = ({ children, allowedRoles }) => {
+//   // Replace this with your actual AuthContext logic later
+//   const user = { role: "citizen" }; // TEMPORARY: Hardcoded for testing
+//   const loading = false;
+
+//   if (loading)
+//     return (
+//       <div className="h-screen bg-black flex items-center justify-center text-red-600">
+//         LOADING...
+//       </div>
+//     );
+
+//   if (!user) return <Navigate to="/login" replace />;
+
+//   if (allowedRoles && !allowedRoles.includes(user.role)) {
+//     return <Navigate to="/" replace />;
+//   }
+
+//   return children;
+// };
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  // Replace this with your actual AuthContext logic later
-  const user = { role: "citizen" }; // TEMPORARY: Hardcoded for testing
-  const loading = false;
+  const { user, loading } = useAuth();
 
   if (loading)
     return (
@@ -52,7 +65,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   return children;
 };
-
 export default function App() {
   return (
     <Router>
@@ -79,7 +91,7 @@ export default function App() {
           <Route
             path="dashboard"
             element={
-              <ProtectedRoute allowedRoles={["citizen"]}>
+              <ProtectedRoute allowedRoles={["citizen", "police", "admin"]}>
                 <Dashboard />
               </ProtectedRoute>
             }
